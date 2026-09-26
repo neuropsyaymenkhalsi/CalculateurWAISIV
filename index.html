@@ -144,6 +144,20 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
 .eqn b{font-family:var(--serif);font-size:24px}
 .eqn span{font-size:14.5px;color:var(--muted);font-weight:600}
 .subh{font-family:var(--serif);font-size:17px;margin:4px 0 -6px}
+.tm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:8px 10px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface2)}
+.tm .tt{font-family:var(--serif);font-weight:700;font-size:28px;line-height:1;font-variant-numeric:tabular-nums;min-width:66px;color:var(--ink)}
+.tm button{font:inherit;font-weight:700;font-size:15px;min-height:44px;padding:0 14px;border-radius:10px;border:2px solid var(--accent);background:#fff;color:var(--accent);cursor:pointer}
+.tm button.go{background:var(--accent);color:#fff}
+.tm .st{font-size:14px;font-weight:600;color:var(--muted)}
+.tm.run{border-color:var(--accent)}
+.tm.run .tt{color:var(--accent)}
+.tm.low{background:var(--warn-soft);border-color:var(--warn)}
+.tm.low .tt{color:var(--warn)}
+.tm.over{background:var(--bad-soft);border-color:var(--bad)}
+.tm.over .tt,.tm.over .st{color:var(--bad)}
+.tm.over .tt{animation:tmblink .6s steps(2) 6}
+@keyframes tmblink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.tm.over .tt{animation:none}}
 .piece{display:grid;grid-template-columns:repeat(3,58px);gap:6px}
 .piece .opt{flex:none}
 .prompts{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px;display:flex;flex-direction:column;gap:6px}
@@ -479,7 +493,7 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
     function row(it){
       var s=e.st[it.n],v=sc[it.n],h='';
       h+='<article class="item'+(s.mode==='active'?'':' off')+(e.next===it.n?' next':'')+'"><div class="num">'+it.n+'</div><div class="fig">'+svg(it)+'</div>';
-      h+='<div class="meta"><b>'+it.pres+'</b><small>Limite : '+it.lim+' s'+(it.k==='t'?' par essai':'')+'</small><div class="tags">'+tags(e,it.n)+'</div></div>';
+      h+='<div class="meta"><b>'+it.pres+'</b><small>Limite : '+it.lim+' s'+(it.k==='t'?' par essai':'')+'</small><div class="tags">'+tags(e,it.n)+'</div>'+(s.mode==='active'?tmHtml('cubes'+it.n,it.lim):'')+'</div>';
       if(s.mode!=='active')h+=offNote(s);
       else{
         h+='<div class="ctl" role="radiogroup" aria-label="Note de l\'item '+it.n+'">';
@@ -517,7 +531,7 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
     function row(n){
       var s=e.st[n],v=sc[n],dag=g.dag.indexOf(n)>-1,max=g.maxPts(n),ex=g.extra?g.extra(n):'';
       var r='<article class="item plain'+(s.mode==='active'?'':' off')+(e.next===n?' next':'')+'"><div class="num">'+n+'</div>';
-      r+='<div class="meta"><b>'+g.label(n)+(dag?' †':'')+'</b>'+(g.sub?'<small>'+g.sub(n)+'</small>':'')+'<div class="tags">'+tags(e,n)+'</div></div>';
+      r+='<div class="meta"><b>'+g.label(n)+(dag?' †':'')+'</b>'+(g.sub?'<small>'+g.sub(n)+'</small>':'')+'<div class="tags">'+tags(e,n)+'</div>'+(s.mode==='active'&&(key==='ari'||key==='cpl')?tmHtml(key+n,key==='ari'?30:20):'')+'</div>';
       if(s.mode!=='active')r+=offNote(s);
       else{
         r+='<div class="ctl" role="radiogroup" aria-label="Note de l\'item '+n+'">';
@@ -541,7 +555,7 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
     for(n=1;n<=N;n++){
       var s=e.st[n],a=S[key].ans[n],kk=K[n-1];
       var r='<article class="item plain'+(s.mode==='active'?'':' off')+(e.next===n?' next':'')+'"><div class="num">'+n+'</div>';
-      r+='<div class="meta"><b>Item '+n+(key==='bal'&&n===16?' †':'')+'</b>'+(key==='bal'?'<small>Limite : '+(n<=12?20:40)+' s</small>':'')+'<div class="tags">'+tags(e,n)+'</div></div>';
+      r+='<div class="meta"><b>Item '+n+(key==='bal'&&n===16?' †':'')+'</b>'+(key==='bal'?'<small>Limite : '+(n<=12?20:40)+' s</small>':'')+'<div class="tags">'+tags(e,n)+'</div>'+(key==='bal'&&s.mode==='active'?tmHtml('bal'+n,n<=12?20:40):'')+'</div>';
       if(s.mode!=='active')r+=offNote(s);
       else{
         r+='<div class="ctl" role="radiogroup" aria-label="Réponse du sujet à l\'item '+n+'">';
@@ -567,7 +581,7 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
     for(n=1;n<=26;n++){
       var s=e.st[n],sel=S.puz.sel[n]||[],none=!!S.puz.none[n],kk=PUZ_KEY[n-1];
       var r='<article class="item plain'+(s.mode==='active'?'':' off')+(e.next===n?' next':'')+'"><div class="num">'+n+'</div>';
-      r+='<div class="meta"><b>Item '+n+'</b><small>Limite : '+(n<=7?20:30)+' s · 3 pièces à désigner</small><div class="tags">'+tags(e,n)+'</div></div>';
+      r+='<div class="meta"><b>Item '+n+'</b><small>Limite : '+(n<=7?20:30)+' s · 3 pièces à désigner</small><div class="tags">'+tags(e,n)+'</div>'+(s.mode==='active'?tmHtml('puz'+n,n<=7?20:30):'')+'</div>';
       if(s.mode!=='active')r+=offNote(s);
       else{
         var full=sel.length===3,ok=full&&sel.slice().sort().join()===kk.join();
@@ -635,17 +649,17 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
   function symView(R){
     var c=num(S.sym.c),i=num(S.sym.i);
     return head('sym',[['Départ','16-79 ans : items de démonstration, d\'exemple, puis items de test.'],['Arrêt','Après 120 secondes.'],['Cotation','Grille de correction pour Symboles. Soustraire le total des réponses incorrectes du total des réponses correctes. Si la note est inférieure à 0, noter 0.']])
-      +'<div class="fields">'+numField('sym','t','Temps mis (s)','120','Facultatif')+numField('sym','c','Réponses correctes','0')+numField('sym','i','Réponses incorrectes','0')+'</div>'
+      +tmHtml('sym',120)+'<div class="fields">'+numField('sym','t','Temps mis (s)','120','Facultatif')+numField('sym','c','Réponses correctes','0')+numField('sym','i','Réponses incorrectes','0')+'</div>'
       +'<div class="eqn"><span>Correctes</span><b>'+(c===undefined?'–':c)+'</b><span>moins incorrectes</span><b>'+(i===undefined?'–':i)+'</b><span>= note brute</span><b>'+R.sym.tot+' / 60</b></div>';
   }
   function codView(R){
     var c=num(S.cod.c);
     return head('cod',[['Départ','16-79 ans : items de démonstration, d\'exemple, puis items de test.'],['Arrêt','Après 120 secondes.'],['Cotation','Grille de correction pour Code. Noter 1 point pour chaque réponse correcte.']])
-      +'<div class="fields">'+numField('cod','t','Temps mis (s)','120','Facultatif')+numField('cod','c','Réponses correctes','0','Maximum 135')+'</div>'
+      +tmHtml('cod',120)+'<div class="fields">'+numField('cod','t','Temps mis (s)','120','Facultatif')+numField('cod','c','Réponses correctes','0','Maximum 135')+'</div>'
       +'<div class="eqn"><span>Note brute totale</span><b>'+R.cod.tot+' / 135</b>'+((c!==undefined&&c>135)?'<span style="color:var(--bad)">Valeur supérieure au maximum</span>':'')+'</div>';
   }
   function barView(R){
-    var f=function(n){return '<div class="subh">Item '+n+'</div><div class="fields">'+numField('bar','t'+n,'Temps mis (s)','45','Limite 45 s')+numField('bar','c'+n,'Réponses correctes','0')+numField('bar','e'+n,'Erreurs','0')+'</div>';};
+    var f=function(n){return '<div class="subh">Item '+n+'</div>'+tmHtml('bar'+n,45)+'<div class="fields">'+numField('bar','t'+n,'Temps mis (s)','45','Limite 45 s')+numField('bar','c'+n,'Réponses correctes','0')+numField('bar','e'+n,'Erreurs','0')+'</div>';};
     return head('bar',[['Départ','16-69 ans : item de démonstration A, item d\'exemple A, puis item 1. 70-79 ans : ne pas administrer.'],['Arrêt','Après 45 secondes, pour chacun des deux items.'],['Cotation','Grille de cotation pour Barrage. Soustraire les erreurs des réponses correctes. Si la note est inférieure à 0, noter 0. Note brute totale = item 1 + item 2.']])
       +f(1)+f(2)
       +'<div class="eqn"><span>Item 1</span><b>'+R.bar.n1+'</b><span>Item 2</span><b>'+R.bar.n2+'</b><span>= note brute totale</span><b>'+R.bar.tot+' / 72</b></div>';
@@ -857,12 +871,21 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
     var dl=null;
     try{dl=(window.claude&&window.claude.use)?await window.claude.use('downloads'):null;}catch(e){dl=null;}
     if(!dl){
+      var nm=pdfFileName(),blob=new Blob([bytes],{type:'application/pdf'}),url;
+      try{url=URL.createObjectURL(blob);}catch(e0){url='';}
+      var shared=false;
       try{
-        var url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),an=document.createElement('a');
-        an.href=url;an.download=pdfFileName();document.body.appendChild(an);an.click();
-        setTimeout(function(){document.body.removeChild(an);URL.revokeObjectURL(url);},1500);
-        say('PDF téléchargé.');
-      }catch(e2){say('Le téléchargement a échoué.',true);}
+        var f=new File([blob],nm,{type:'application/pdf'});
+        if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:nm});shared=true;}
+      }catch(e1){if(e1&&e1.name==='AbortError'){say('Partage annulé.',true);}}
+      if(!shared){
+        try{var an=document.createElement('a');an.href=url;an.download=nm;document.body.appendChild(an);an.click();document.body.removeChild(an);}catch(e2){}
+      }
+      if(fl){
+        fl.style.color='var(--ok)';
+        fl.innerHTML=(shared?'PDF prêt. ':'')+'<a href="'+url+'" download="'+nm+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;padding:12px 16px;border:2px solid var(--accent);border-radius:10px;color:var(--accent);font-weight:700;text-decoration:none">Ouvrir / enregistrer le PDF</a>'
+          +'<div style="color:var(--muted);font-size:14px;margin-top:8px;font-weight:500">Si rien ne se télécharge dans cet aperçu, appuyez sur le bouton ci-dessus, ou ouvrez le calculateur depuis le lien en ligne (le PDF s\'y enregistre directement).</div>';
+      }
       return;
     }
     if(bt)bt.disabled=true;
@@ -923,8 +946,96 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
   }
   function storeOf(k){return k==='lc'?S.lc:S.dig[k];}
 
+  /* ================= Minuteurs ================= */
+  var TM={},AC=null,tmLast=0;
+  function tmGet(id,lim){return TM[id]||(TM[id]={lim:lim,run:false,t0:0,acc:0,over:false});}
+  function tmMs(o){return o.run?o.acc+(Date.now()-o.t0):o.acc;}
+  function tmFmt(o){var rem=Math.max(0,o.lim*1000-tmMs(o)),sec=Math.ceil(rem/1000),m=Math.floor(sec/60),r=sec%60;return m+':'+(r<10?'0':'')+r;}
+  function tmCls(o){
+    if(o.over)return ' over';
+    var rem=o.lim*1000-tmMs(o);
+    return o.run?(rem<=5000?' run low':' run'):'';
+  }
+  function tmLabel(o){return o.over?'Terminé':o.run?'Arrêter':(o.acc>0&&!o.over?'Reprendre':'Démarrer');}
+  function tmStatus(o){
+    if(o.over)return 'Temps écoulé ('+o.lim+' s)';
+    if(!o.run&&o.acc>0)return 'Temps mis : '+Math.max(1,Math.round(o.acc/1000))+' s';
+    return 'Limite : '+o.lim+' s';
+  }
+  function tmHtml(id,lim){
+    var o=tmGet(id,lim);
+    return '<div class="tm'+tmCls(o)+'" data-tmid="'+id+'" role="timer" aria-label="Minuteur, limite '+lim+' secondes"><span class="tt" aria-live="off">'+tmFmt(o)+'</span><button type="button" class="go" data-tmact="go">'+tmLabel(o)+'</button><button type="button" data-tmact="rst">Remise à zéro</button><span class="st">'+tmStatus(o)+'</span></div>';
+  }
+  function tmPaint(){
+    var els=document.querySelectorAll('.tm[data-tmid]');
+    for(var i=0;i<els.length;i++){
+      var el=els[i],o=TM[el.dataset.tmid];if(!o)continue;
+      el.className='tm'+tmCls(o);
+      var tt=el.querySelector('.tt'),g=el.querySelector('.go'),st=el.querySelector('.st');
+      var a=tmFmt(o),b=tmLabel(o),c=tmStatus(o);
+      if(tt.textContent!==a)tt.textContent=a;
+      if(g.textContent!==b)g.textContent=b;
+      if(st.textContent!==c)st.textContent=c;
+    }
+  }
+  function tmUnlock(){
+    try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}catch(e){}
+  }
+  function tmBeep(count,long){
+    try{
+      tmUnlock();if(!AC)return;
+      var t=AC.currentTime+0.02;
+      for(var i=0;i<count;i++){
+        var o=AC.createOscillator(),g=AC.createGain(),dur=(long&&i===count-1)?0.9:0.22;
+        o.type='square';o.frequency.value=i===count-1?1046:880;
+        o.connect(g);g.connect(AC.destination);
+        g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.35,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+        o.start(t);o.stop(t+dur+0.02);
+        t+=dur+0.14;
+      }
+    }catch(e){}
+    try{if(navigator.vibrate)navigator.vibrate(count>2?[250,120,250,120,600]:[120]);}catch(e2){}
+  }
+  function tmDone(id,expired){
+    var o=TM[id];if(!o)return;
+    var secs=expired?o.lim:Math.max(1,Math.round(o.acc/1000)),ch=false,m;
+    if(secs<=0)return;
+    if(id==='sym'||id==='cod'){S[id].t=secs;ch=true;}
+    else if((m=/^bar(\d)$/.exec(id))){S.bar['t'+m[1]]=secs;ch=true;}
+    else if((m=/^cubes(\d+)$/.exec(id))){
+      var n=+m[1],it=CUBES[n-1];
+      if(!expired&&it&&it.bands){S.cubes.secs[n]=secs;var p=scoreFromTime(it,secs);if(p===undefined)delete S.cubes.scores[n];else S.cubes.scores[n]=p;ch=true;}
+    }
+    if(ch)render();
+  }
+  function tmStop(id,expired){
+    var o=TM[id];if(!o||!o.run)return;
+    o.acc=expired?o.lim*1000:tmMs(o);o.run=false;
+    if(expired){o.over=true;tmBeep(4,true);}
+    tmDone(id,expired);tmPaint();
+  }
+  function tmAct(btn){
+    var box=btn.closest('.tm'),id=box.dataset.tmid,o=TM[id];if(!o)return;
+    tmUnlock();
+    if(btn.dataset.tmact==='rst'){o.run=false;o.acc=0;o.over=false;tmPaint();return;}
+    if(o.run){tmStop(id,false);return;}
+    if(o.over)return;
+    Object.keys(TM).forEach(function(k){if(k!==id&&TM[k].run)tmStop(k,false);});
+    o.run=true;o.t0=Date.now();tmPaint();
+  }
+  setInterval(function(){
+    var any=false;
+    Object.keys(TM).forEach(function(k){
+      var o=TM[k];if(!o.run)return;any=true;
+      if(tmMs(o)>=o.lim*1000)tmStop(k,true);
+    });
+    if(any)tmPaint();
+  },200);
+
   /* ================= Événements ================= */
   document.addEventListener('click',function(e){
+    var ta=e.target.closest('[data-tmact]');
+    if(ta){tmAct(ta);return;}
     var t=e.target.closest('.tab');
     if(t){S.tab=t.dataset.tab;render();window.scrollTo(0,0);var sel=document.querySelector('.tab[aria-selected="true"]');if(sel&&sel.scrollIntoView)try{sel.scrollIntoView({inline:'center',block:'nearest'});}catch(x){}return;}
     var pz=e.target.closest('[data-puz]');
@@ -1011,7 +1122,7 @@ textarea.sum{width:100%;min-height:200px;font:13px/1.5 ui-monospace,Menlo,Consol
   var rb=document.getElementById('reset'),armed=false,tmr;
   rb.addEventListener('click',function(){
     if(!armed){armed=true;rb.classList.add('armed');rb.textContent='Confirmer : tout effacer';tmr=setTimeout(off,5000);return;}
-    S=blank();restored=false;
+    S=blank();restored=false;TM={};
     ['nom','date','exam','age'].forEach(function(k){var el=document.getElementById('f-'+k);if(el)el.value='';});
     clearTimeout(tmr);off();render();
   });
